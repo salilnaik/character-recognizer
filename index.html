@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Digit Recognizer</title>
+  </head>
+  <body>
+    <canvas id="canvas" width="28" height="28" style="border:1px solid #000000;"></canvas>
+    <button onclick="clearArea()">Clear</button>
+    <script>
+        // set up canvas
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        var width = window.innerWidth
+        || document.documentElement.clientWidth
+        || document.body.clientWidth;
+
+        var height = window.innerHeight
+        || document.documentElement.clientHeight
+        || document.body.clientHeight;
+
+        function setupCanvas(canvas, ctx) {
+            var scale = Math.min(width, height)-20;
+            scale = 280;
+            ctx.strokeStyle = "#000000";
+            ctx.lineWidth = 13;
+            ctx.lineJoin = "round";
+            ctx.scale(28/scale,28/scale);
+            canvas.style.width = scale+"px";
+            canvas.style.height = scale+"px";
+        }
+        setupCanvas(canvas, ctx);
+
+        // set up mouse events
+        var drawing = false;
+        var currentPos = {x:0, y:0};
+        var initPos = currentPos;
+
+        canvas.addEventListener("mousedown", function (e) {
+            drawing = true;
+            initPos = getMousePos(canvas, e);
+        }, false);
+        canvas.addEventListener("mouseup", function (e) {
+            drawing = false;
+        }, false);
+        canvas.addEventListener("mousemove", function (e) {
+            currentPos = getMousePos(canvas, e);
+        }, false);
+
+        // Set up touch events for touch
+        canvas.addEventListener("touchstart", function (e) {
+            if (e.target == canvas) {
+                e.preventDefault(); // stop scrolling while drawing on mobile
+            }
+            currentPos = getTouchPos(canvas, e);
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent("mousedown", {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }, false);
+        canvas.addEventListener("touchend", function (e) {
+            if (e.target == canvas) {
+                e.preventDefault(); // stop scrolling while drawing on mobile
+            }
+            var mouseEvent = new MouseEvent("mouseup", {});
+            canvas.dispatchEvent(mouseEvent);
+        }, false);
+        canvas.addEventListener("touchmove", function (e) {
+            if (e.target == canvas) {
+                e.preventDefault(); // stop scrolling while drawing on mobile
+            }
+            var touch = e.touches[0];
+            var mouseEvent = new MouseEvent("mousemove", {
+                clientX: touch.clientX,
+                clientY: touch.clientY
+            });
+            canvas.dispatchEvent(mouseEvent);
+        }, false);
+
+        // get the position of a touch relative to the canvas
+        function getTouchPos(canvasDom, touchEvent) {
+            var rect = canvasDom.getBoundingClientRect();
+            return {
+                x: touchEvent.touches[0].clientX - rect.left,
+                y: touchEvent.touches[0].clientY - rect.top
+            };
+        }
+
+        // get mouse position relative to canvas
+        function getMousePos(canvas, mouseEvent) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+                x: mouseEvent.clientX - rect.left,
+                y: mouseEvent.clientY - rect.top
+            };
+        }
+
+        // get a regular interval for drawing to the screen
+        window.requestAnimFrame = (function (callback) {
+            return window.requestAnimationFrame || 
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimaitonFrame ||
+            function (callback) {
+            window.setTimeout(callback, 1000/60);
+            };
+        })();
+
+        // draw to canvas
+        function renderCanvas() {
+            if (drawing) {
+                ctx.beginPath();
+                ctx.moveTo(initPos.x, initPos.y);
+                ctx.lineTo(currentPos.x, currentPos.y);
+                ctx.closePath();
+                ctx.stroke();
+
+                initPos = currentPos;
+            }
+        }
+        
+        // allow for animation
+        (function drawLoop () {
+            requestAnimFrame(drawLoop);
+            renderCanvas();
+        })();
+
+        function clearArea() {
+            canvas.width = canvas.width;
+            setupCanvas(canvas, ctx);
+        }
+    </script>
+  </body>
+</html>
