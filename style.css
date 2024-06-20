@@ -1,0 +1,32 @@
+.barcontainer{
+    background-color: #181818;
+    position: relative;
+    transform: translateY(-50%);
+    top: 50%;
+    margin-left: 50px;
+    /* width: 80px; */
+    height: 80%;
+    aspect-ratio: 1/1;
+    float: left;
+  }
+    
+  .bar{
+    background-color: #656565;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 80%;
+    box-sizing: border-box;
+    animation: grow 0.8s ease-out forwards;
+    transform-origin: bottom;
+  }
+
+  #bar1{
+    background-color: rgb(47, 143, 74);
+  }
+
+  @keyframes grow{
+    from{
+      transform: scaleY(0);
+    }
+  }
